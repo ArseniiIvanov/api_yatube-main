@@ -1,21 +1,19 @@
-from django.urls import path, include
+from django.urls import include, path
+from rest_framework.authtoken import views
 from rest_framework.routers import DefaultRouter
-from rest_framework_nested import routers
 
-from . import views
+from .views import CommentViewSet, GroupViewSet, PostViewSet
 
 router = DefaultRouter()
-router.register('follow', views.FollowViewset, basename="follow")
-router.register('posts', views.PostViewset, basename="post")
-
-posts_router = routers.NestedDefaultRouter(
-    router, 'posts', lookup='post'
-)
-posts_router.register(
-    'comments', views.CommentViewset, basename='post-comments'
+router.register('posts', PostViewSet, basename='post')
+router.register('groups', GroupViewSet, basename='group')
+router.register(
+    r'posts/(?P<post_id>\d+)/comments',
+    CommentViewSet,
+    basename='comment'
 )
 
 urlpatterns = [
     path('v1/', include(router.urls)),
-    path('v1/', include(posts_router.urls)),
+    path('v1/api-token-auth/', views.obtain_auth_token, name='url_api_token'),
 ]
